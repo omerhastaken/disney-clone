@@ -1,5 +1,8 @@
 import styled from "styled-components"
+import { useDispatch, useSelector } from 'react-redux'
+import { useHistory } from "react-router-dom"
 import { auth, provider } from "../firebase"
+import { selectUserName, selectUserLoginDetails, selectUserPhoto } from "../features/user/userSlice"
 
 const Header = (props) => {
 
