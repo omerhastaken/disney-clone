@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import styled from "styled-components"
 import { useDispatch, useSelector } from 'react-redux'
 import { useHistory } from "react-router-dom"
@@ -8,7 +9,16 @@ const Header = (props) => {
     const dispatch = useDispatch();
     const history = useHistory();
     const username = useSelector(selectUserName);
-    const userPhoto = useSelector(selectUserPhoto);
+    const userphoto = useSelector(selectUserPhoto);
+
+    useEffect(() => {
+        auth.onAuthStateChanged(async (user) => {
+            if(user) {
+                setUser(user)
+                history.push('/home');
+            }
+        })
+    }, [username]);
 
     const handleAuth = () => {
         auth.signInWithPopup(provider).then((result) => {
@@ -63,7 +73,12 @@ const Header = (props) => {
                     <span>SERIES</span>
                 </a>
             </NavMenu>
-            <UserImg src={userPhoto} alt={username} />
+            <SignOut>
+                <UserImg src={userphoto} alt={username} />
+                <DropDown>
+                    <span onClick={handleAuth}>Sign Out</span>
+                </DropDown>
+            </SignOut>
             </>
         }
     </Nav>
@@ -185,6 +200,18 @@ const Login = styled.div`
 const UserImg = styled.img`
     height: 100%;
 
+`
+
+const SignOut = styled.div``
+
+const DropDown = styled.div`
+    position: absolute;
+    top: 48px;
+    right: 0px;
+    background: rgb(19, 19, 19);
+    border: 1px solid rgba(151, 15r1, 151, 0.34)
+    border-radius: 4px;
+    
 `
 
 export default Header;
