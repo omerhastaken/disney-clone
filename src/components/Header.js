@@ -3,13 +3,13 @@ import styled from "styled-components"
 import { useDispatch, useSelector } from 'react-redux'
 import { useHistory } from "react-router-dom"
 import { auth, provider } from "../firebase"
-import { selectUserName, selectUserLoginDetails, selectUserPhoto, setUserLoginDetails } from "../features/user/userSlice"
+import { selectUserName, selectUserLoginDetails, selectUserPhoto, setUserLoginDetails, setSignOutState } from "../features/user/userSlice"
 
 const Header = (props) => {
     const dispatch = useDispatch();
     const history = useHistory();
     const username = useSelector(selectUserName);
-    const userphoto = useSelector(selectUserPhoto);
+    const userPhoto = useSelector(selectUserPhoto);
 
     useEffect(() => {
         auth.onAuthStateChanged(async (user) => {
@@ -21,11 +21,19 @@ const Header = (props) => {
     }, [username]);
 
     const handleAuth = () => {
+        if (!username) {
         auth.signInWithPopup(provider).then((result) => {
             setUser(result.user);
         }).catch((error) => {
             alert(error.message);
         }) 
+    } else if (username) {
+        auth.signOut().then(() => {
+            dispatch(setSignOutState())
+            history.push('/')
+
+        }).catch((err) => alert(err.message))
+    }
     }
 
     const setUser = (user) => {
@@ -74,7 +82,7 @@ const Header = (props) => {
                 </a>
             </NavMenu>
             <SignOut>
-                <UserImg src={userphoto} alt={username} />
+                <UserImg src={userPhoto} alt={username} />
                 <DropDown>
                     <span onClick={handleAuth}>Sign Out</span>
                 </DropDown>
@@ -202,16 +210,41 @@ const UserImg = styled.img`
 
 `
 
-const SignOut = styled.div``
-
 const DropDown = styled.div`
-    position: absolute;
-    top: 48px;
-    right: 0px;
-    background: rgb(19, 19, 19);
-    border: 1px solid rgba(151, 15r1, 151, 0.34)
-    border-radius: 4px;
-    
-`
+  position: absolute;
+  top: 48px;
+  right: 0px;
+  background: rgb(19, 19, 19);
+  border: 1px solid rgba(151, 151, 151, 0.34);
+  border-radius: 4px;
+  box-shadow: rgb(0 0 0 / 50%) 0px 0px 18px 0px;
+  padding: 10px;
+  font-size: 14px;
+  letter-spacing: 3px;
+  width: 100px;
+  opacity: 0;
+`;
+
+const SignOut = styled.div`
+  position: relative;
+  height: 48px;
+  width: 48px;
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  ${UserImg} {
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+  }
+  &:hover {
+    ${DropDown} {
+      opacity: 1;
+      transition-duration: 1s;
+    }
+  }
+`;
+
 
 export default Header;
